@@ -56,6 +56,8 @@ export default function Home() {
   const [rpc, setRpc] = useState<string>();
   const [intervalTime, setIntervalTime] = useState<number>(1000);
   const [chain, setChain] = useState<Chain>(mainnet);
+  const [successCount, setSuccessCount] = useState(2);
+
 
   const handleLog = (log: string, state: string = "success") => {
     return `${new Date().toLocaleString()} ${
@@ -93,7 +95,16 @@ export default function Home() {
       transport: http(rpc),
     });
 
+    let i = 0;
     const timer = setInterval(async () => {
+    
+ 
+      if (i >= successCount) { // 检查是否达到了期望的计数
+        clearInterval(timer);
+        setRunning(false);
+        return;
+      }
+ 
       for (const account of accounts) {
         try {
           const hash = await client.sendTransaction({
@@ -102,6 +113,7 @@ export default function Home() {
             value: 0n,
             data: stringToHex(inscription),
           });
+          i++;
           setLogs((logs) => [
             handleLog(`${handleAddress(account.address)} ${hash}`, "success"),
             ...logs,
@@ -114,24 +126,27 @@ export default function Home() {
         }
       }
     }, intervalTime);
+
+
+
     setTimer(timer);
-  }, [accounts, chain, inscription, intervalTime, rpc, toAddress]);
+  }, [accounts, chain, inscription, intervalTime, rpc, successCount, toAddress]);
 
   return (
     <main className=" flex flex-col items-center gap-5 py-5">
-      <h1 className=" text-5xl">Inscription</h1>
+      <h1 className=" text-5xl">ETH Inscription</h1>
 
       <div className=" flex items-center gap-2">
-        <span>代码开源:</span>
+        {/* <span>代码开源:</span>
         <Link
           className=" text-blue-500 hover:underline"
           href="https://github.com/vectorisvector/inscription"
           target="_blank"
         >
           https://github.com/vectorisvector/inscription
-        </Link>
+        </Link> */}
 
-        <span>alpha推特:</span>
+        <span>原作者推特:</span>
         <Link
           className=" text-blue-500 hover:underline"
           href="https://twitter.com/ChaunceyCrypto"
@@ -139,6 +154,17 @@ export default function Home() {
         >
           https://twitter.com/ChaunceyCrypto
         </Link>
+      </div>
+
+      <div className=" flex items-center gap-2">
+         <span>更新推特:</span>
+          <Link
+            className=" text-blue-500 hover:underline"
+            href="https://twitter.com/ChaunceyCrypto"
+            target="_blank"
+          >
+            https://twitter.com/zgravityspace
+          </Link>
       </div>
 
       <div className=" flex items-center justify-center gap-5">
@@ -172,7 +198,7 @@ export default function Home() {
             const text = e.target.value;
             const lines = text.split("\n");
             const accounts = lines.map((line) => {
-              const key = "0x" + line.trim();
+              const key = "0x" + line.trim(); // TODO why
               if (/^0x[a-fA-F0-9]{64}$/.test(key)) {
                 return privateKeyToAccount(key as Hex);
               }
@@ -241,10 +267,23 @@ export default function Home() {
         </button>
 
         <input
-          className=" h-10 w-[400px] rounded-lg border px-2"
+          className=" h-10 w-[220px] rounded-lg border px-2"
+          placeholder="想要打的次数 (默认 100)"
+          type="number"
+          min="1"
+          disabled={running}
+          onChange={(e) => {
+            const text = e.target.value;
+            setSuccessCount(Number(text));
+          }}
+        />
+
+        <input
+          className=" h-10 w-[220px] rounded-lg border px-2"
           placeholder="间隔时间（默认 1000ms）"
           type="number"
           disabled={running}
+          min="10"
           onChange={(e) => {
             const text = e.target.value;
             setIntervalTime(Number(text));
