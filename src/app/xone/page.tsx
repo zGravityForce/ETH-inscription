@@ -1,5 +1,8 @@
 // "use client";
 
+export default function Page() {
+  // 组件逻辑
+}
 // import xoneAbi from "@/abis/xone";
 // import classNames from "classnames";
 // import Link from "next/link";
