@@ -56,7 +56,7 @@ export default function Home() {
   const [rpc, setRpc] = useState<string>();
   const [intervalTime, setIntervalTime] = useState<number>(1000);
   const [chain, setChain] = useState<Chain>(mainnet);
-  const [successCount, setSuccessCount] = useState(2);
+  const [successCount, setSuccessCount] = useState(100);
 
 
   const handleLog = (log: string, state: string = "success") => {
